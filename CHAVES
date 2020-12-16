@@ -1,2 +1,22 @@
-Unseal Key: +STmmZ/5xqjpHL+c0E5c8AZcB5CKuD9OdFT6BVr2Y4g=
-Root Token: suporte
+Key 1: OTXSMuKS9s49OLU4OMC5ACB8EswZbKXUuvxMmux/7xXM
+Key 2: XTrUalAmr0ocncv+71LiJ2XbsYj4GmdnY3APMb+Zy2Zu
+Key 3: U0k5cBFxos9uNVJh0Mwa15nyRvUpgYlApakPKRuhCKb9
+Key 4: bO/+x6Wmbd621nQki5dZVjOZG525BYLTbHBOhZAit80H
+Key 5: YpwT3eTxYFvEfu27tAmhps+w7OBonmz0qqlOnTQadA2U
+Key 6: bBFTgzybq/VlUUwdd9AsLUL3XNcFzmQ01QCaI74MBmWL
+
+
+Initial Root Token: s.j62ZetGM3KLxUctUalTeA9Eb
+New root Token = s.oAIVm3fjMqVQ1QhqTc6cjCMN
+
+
+HA Consul
+
+Unseal Key 1: ovb/hxlO9M+F/GZKHGZRJzrNcQ2D/J7WY82h/wA/kghX
+Unseal Key 2: t5SMMZZmcP1/4ccXONzASK2tbpkti9+LpGfreQA10eEZ
+Unseal Key 3: 37lYxnNdP0a0LGmrEAyqJ7DAFAM3ZGCx9dvwMExjlK0T
+Unseal Key 4: soSxZCSbaH/UYsMr09R5YJ8Yx2KOiVfJp2hSseFm1x1z
+Unseal Key 5: gtb394nxXzvMFFxDVbuZbFW+i5Y/vBWnTQ1uSq9rSIO2
+Unseal Key 6: K0mtbBO9SHC6Pkcupr1ADmCawqXsgIyAgFc4kXyP1Q1T
+
+Initial Root Token: s.xF3C5Pw7Sje82USvY6xenjzG

@@ -98,11 +98,11 @@ mkdir -p /var/liv/vault/data
 mkdir /et/vault
 touch /etc/vault/config.json
 ```
--Criando o usuário
+- Criando o usuário
 ```
 useradd -r vault
 ```
--Alterando as permissões 
+- Alterando as permissões 
 ```
 chown -Rv <coloque todas as pastas da parte de cima>
 ```
@@ -143,32 +143,32 @@ Exportando a variable of conection
 
 `export VAULT_ADDR="http://127.0.0.1:8200"`
 
-# Inicializando o vault, ele vai mostrar as chaves, então guarde com carinho :)
-# Caso você inicie assim, ele vai iniciar com 5 chaves e faz o unseal threshold com 3 chaves, podemos alterar isso setando estes valores.
+### Inicializando o vault, ele vai mostrar as chaves, então guarde com carinho :)
+### Caso você inicie assim, ele vai iniciar com 5 chaves e faz o unseal threshold com 3 chaves, podemos alterar isso setando estes valores.
 
 `vault operator init -key-shares 10 -key-threshold 6`
 
-# Tornando o vault unsel, tecle enter para colocar as chaves, precisa de 3 das 5 criadas  
+### Tornando o vault unsel, tecle enter para colocar as chaves, precisa de 3 das 5 criadas  
 
 `vault operator unseal`
 
-# Como gerar uma nova chave do root token, Segura, vai ser longo.....
+### Como gerar uma nova chave do root token, Segura, vai ser longo.....
 
 `vault operator generate-root -init`
 
-# Após rodar este comando, salve o valor de Nonce e OTP, vamos utilizar.
-# Agora vamos rodar o unseal da chave, com o valor do nonce obtido do comando acima.
+### Após rodar este comando, salve o valor de Nonce e OTP, vamos utilizar.
+### Agora vamos rodar o unseal da chave, com o valor do nonce obtido do comando acima.
 
 `operator generate-root -nonce 6fb1dee6-7552-feae-aff6-d818aaac5f73`
- # Repita este processo com a key 6 vezes :)
+ ### Repita este processo com a key 6 vezes :)
 
- # Agora vamos fazer o decode após o ultimo unseal progress, no final ele vai mostrar o Encoded Token, com este token junto com o OTP gerado no init, vamos obter o token.
+ ### Agora vamos fazer o decode após o ultimo unseal progress, no final ele vai mostrar o Encoded Token, com este token junto com o OTP gerado no init, vamos obter o token.
 
  `vault operator generate-root -decode NWsCNjluAEkQIAUTLyJVJlE0MwdZBiN1Kzo -otp FEmwp8mzvJHbysdw9EgdoeI6ft`
 
-# Teremos o nosso root token
+### Teremos o nosso root token
 
-## Segurança re-key das chaves existentes, só consegue fazer isso, com as chaves originais.
+### Segurança re-key das chaves existentes, só consegue fazer isso, com as chaves originais.
 
 bf12122d-cc2d-555e-cb8d-564afcc7a2ac
 
@@ -176,20 +176,20 @@ bf12122d-cc2d-555e-cb8d-564afcc7a2ac
 
 ### Guarde a saida desse comando, se perder, não tem volta.
 
-# Secrets Engine com AWS, com secrets dinâmicos.
+#### Secrets Engine com AWS, com secrets dinâmicos.
 
     `vault secrets enable -path AWS_Auth aw`
 
- # Escrevendo a secret 
+ #### Escrevendo a secret 
 
     `vault write AWS_Auth/config/root access_key=<user> secret_key=<key> region=us-east-01` 
 
- # Precisamos criar uma ROLE para definir os paṕeis as permissões corretas
+ #### Precisamos criar uma ROLE para definir os paṕeis as permissões corretas
 
  - https://docs.aws.amazon.com/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html
 
 
- # Precisamos criar a policy do vault com a AWS, temos o arquivo policy_example_vault.json para fazer a importação, o link acima podemos visualizar o effect, action e Resource.
+ ### Precisamos criar a policy do vault com a AWS, temos o arquivo policy_example_vault.json para fazer a importação, o link acima podemos visualizar o effect, action e Resource.
 
  - Importação da Policy 
 
@@ -199,11 +199,11 @@ bf12122d-cc2d-555e-cb8d-564afcc7a2ac
 
     `vault read AWS_Auth/roles/role-default`   
 
-# Vai gerar uma chave com essas permissões, podemos testar com aws-cli setando a chave e key com o comando aws configure, após isso podemos testar com o comando abaixo:
+### Vai gerar uma chave com essas permissões, podemos testar com aws-cli setando a chave e key com o comando aws configure, após isso podemos testar com o comando abaixo:
 
     `aws ec2 describe-instances`
 
-# Criando o acesso com OTP com ssh 
+### Criando o acesso com OTP com ssh 
 
 - Fazendo o download do vault-ssh-helper, dentro do cliente, salve em /usr/local/bin
    `https://github.com/hashicorp/vault-ssh-helper`

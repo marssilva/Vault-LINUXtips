@@ -2,74 +2,74 @@
 
 `vault server -dev -dev-listen-address=0.0.0.0:8200 -dev-root-token-id=suporte`
 
-## Autocomplete vault
+### Autocomplete vault
 
 `vault -autocomplete-install`
 
-## Para listar o secret é preciso colocar kv e depois list, key/value
+### Para listar o secret é preciso colocar kv e depois list, key/value
 
 `vault kv list secret/`
 
-## Criando um secret chave valor
+### Criando um secret chave valor
 
 `vault kv put secret/TesteSuporte value=1234@mudar`
 
-## Get Data value secret
+### Get Data value secret
 
 `vault kv get secret/TesteSuporte`
 
-# Mostrar a ultima version
+### Mostrar a ultima version
 
 `vault kv get --field=teste2 secret/TesteSuporte`
 
-# Mostrar o valor a partir da versão 
+### Mostrar o valor a partir da versão 
 
 `vault kv get --version=2 --field=teste2 secret/TesteSuporte`
 
-# Deletando uma versão do secret
+### Deletando uma versão do secret
 
 `vault kv delete -versions 1 secret/TesteSuporte`
 
-# Recuperando uma chave deletada
+### Recuperando uma chave deletada
 
 `vault kv undelete -versions 1 secret/TesteSuporte`
 
-# Destruindo a chave, Adeus
+### Destruindo a chave, Adeus
 
 `vault kv destroy -versions 1 secret/TesteSuporte`
 
-# Listando as Secrets
+### Listando as Secrets
 
 `vault secrets list`
 
-## Criando uma nova secrets no path diferente do secret
+### Criando uma nova secrets no path diferente do secret
 
 `vault secrets enable -path=ASCES-UNITA kv`
 
-# Movendo uma Secret para outro patch 
+### Movendo uma Secret para outro patch 
 
 `vault secrets move ssh/ ASCES-UNITA_ssh`
 
-# Inserindo vários Chave/Valor em uma secret 
+### Inserindo vários Chave/Valor em uma secret 
 
 `vault kv put ASCES-UNITA/ADM/NTI/API_MOODLE api_user='moodle' api_version=1 api_ip='10.34.36.7' api_pass='1233k4m5t5t5 rrgtgt'`
 
-# Habilitando um tipo de autenticação e criando o usuário 
+### Habilitando um tipo de autenticação e criando o usuário 
 
 `vault auth enable userpass`
 `vault write auth/userpass/users/marssilva password=suporte`
 
-# Leitura do contéudo 
+### Leitura do contéudo 
 
 `vault read auth/userpass/users/marssilva`
 
-# Autenticando via CLI 
+### Autenticando via CLI 
 
 `vault login -method userpass -path userpass username=marssilva password=suporte`
 
 token 
-
-`Key                    Value
+```
+Key                    Value
 ---                    -----
 token                  s.49more5LvPcM5bsgFWngzokT
 token_accessor         DcEykfh36rlFb65JZq2oQPZK
@@ -78,8 +78,8 @@ token_renewable        true
 token_policies         ["default"]
 identity_policies      []
 policies               ["default"]
-token_meta_username    marssilva
-'
+token_meta_username    root
+```
 
 # Para realizar a autenticação via CLI com a variável de ambiente VAULT_TOKEN
 
@@ -91,24 +91,25 @@ token_meta_username    marssilva
 
 ## Instalando o Vault em modo Server
 
-Criando as pastas
-
+- Criando as pastas
+```
 mkdir /var/log/vault
 mkdir -p /var/liv/vault/data
 mkdir /et/vault
 touch /etc/vault/config.json
-
-Criando o usuário
-
+```
+-Criando o usuário
+```
 useradd -r vault
-
-Alterando as permissões 
-
+```
+-Alterando as permissões 
+```
 chown -Rv <coloque todas as pastas da parte de cima>
-
-Criando o arquivo no Systemd
-
+```
+- Criando o arquivo no Systemd
+```
 Em /etc/systemd/system/vault.service
+```
 
 ```
 [Unit]
@@ -174,6 +175,60 @@ bf12122d-cc2d-555e-cb8d-564afcc7a2ac
 `vault operator rekey -init -key-shares 6 -key-threshold 3`
 
 ### Guarde a saida desse comando, se perder, não tem volta.
+
+# Secrets Engine com AWS, com secrets dinâmicos.
+
+    `vault secrets enable -path AWS_Auth aw`
+
+ # Escrevendo a secret 
+
+    `vault write AWS_Auth/config/root access_key=<user> secret_key=<key> region=us-east-01` 
+
+ # Precisamos criar uma ROLE para definir os paṕeis as permissões corretas
+
+ - https://docs.aws.amazon.com/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html
+
+
+ # Precisamos criar a policy do vault com a AWS, temos o arquivo policy_example_vault.json para fazer a importação, o link acima podemos visualizar o effect, action e Resource.
+
+ - Importação da Policy 
+
+    `vault write  AWS_Auth/roles/role-default credential_type=iam_user policy_document=@policy_example_vault.json`
+
+ - List
+
+    `vault read AWS_Auth/roles/role-default`   
+
+# Vai gerar uma chave com essas permissões, podemos testar com aws-cli setando a chave e key com o comando aws configure, após isso podemos testar com o comando abaixo:
+
+    `aws ec2 describe-instances`
+
+# Criando o acesso com OTP com ssh 
+
+- Fazendo o download do vault-ssh-helper, dentro do cliente, salve em /usr/local/bin
+   `https://github.com/hashicorp/vault-ssh-helper`
+
+ - Configurando a máquina com arquivo de configuração 
+   `mkdir /etc/vault-ssh-helpe.d/`
+   `touch /etc/vault-ssh-helpe.d/config.hcl`
+   - Contéudo 
+       ```
+       vault_addr = "http://127.0.0.1:8201"
+       tls_skip_verify = false
+       ssh_mount_point = "ssh_local"
+       allowed_roles = "*"
+      ```
+ - Configurando o pam e ssh
+   - Dentro do pam (/etc/pam.d/sshd) edite a linha que tem '@include common-auth' e coloque o trecho abaixo.
+   `auth requisite pam_exec.so quiet expose_authtok log=/var/log/vault-ssh.log /usr/local/bin/vault-ssh-helper -dev -config=/etc/vault-ssh-helpe.d/config.hcl`
+   `auth optional pam_unix.so not_set_pass use_first_pass nodelay`
+   - Dentro do sshd (/etc/ssh/sshd_config) edite essas variavéis
+      - PasswordAuthentication no
+      - ChallengeResponseAuthentication yes
+      - UsePAM yes            
+      - restart ssh
+
+
 
 
 

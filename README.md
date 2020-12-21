@@ -203,6 +203,10 @@ bf12122d-cc2d-555e-cb8d-564afcc7a2ac
 
     `aws ec2 describe-instances`
 
+### Habilitando as secrets
+
+   `vault secrets enable -path ssh_local ssh`
+
 ### Criando o acesso com OTP com ssh 
 
 - Fazendo o download do vault-ssh-helper, dentro do cliente, salve em /usr/local/bin
@@ -227,6 +231,68 @@ bf12122d-cc2d-555e-cb8d-564afcc7a2ac
       - ChallengeResponseAuthentication yes
       - UsePAM yes            
       - restart ssh
+
+### Vamos atualizar a policy default, com este contéudo e salvar.
+   ```
+   # To View in web UI
+   path "sys/mounts" {
+         capabilities = ["read", "update"]
+   }  
+
+   # To configure the SSH secrets engine
+   path "ssh_local/*" {
+         capabilities = ["create", "read", "update", "delete", "list"]
+   }  
+
+   # Allow tokens to look up their own properties
+   path "auth/token/lookup-self" {
+      capabilities = ["read"]
+   }
+   ```
+# Vamos criar a role, user default root, e allowed para marssilva e teste
+
+   `vault write ssh_local/roles/otp_key_role key_type=otp default_user=root cidr_list=0.0.0.0/0 allowed_users='marssilva,teste'`
+
+### Criar a policy com o nome teste, o arquivo é policy_teste_ssh.hcl, e vamos importar esssa policy
+
+   `vault policy write teste policy_teste_ssh_hcl`
+
+### Vamos testar a criação das chaves com outro usuário, vamos lá 
+
+   - Habilitando o userpass
+   `vault auth enable userpass`
+   - Criando o usuário
+   `vault write auth/userpass/users/marssilva password="teste" policies="teste"`
+   - Fazendo o login
+   `vault login -method userpass username=marssilva`
+
+### Criando a key para o acesso remoto
+
+   `vault write ssh_local/creds/otp_key_role ip=127.0.0.1 username=marssilva`
+
+   - Saída 
+   ```
+   Key                Value
+   ---                -----
+   lease_id           ssh_local/creds/otp_key_role/wn2PcdKB23RcM3edjcONiSAr
+   lease_duration     6h
+   lease_renewable    false
+   ip                 127.0.0.1
+   key                ca3273de-80b1-052c-aa11-67630434fbe0
+   key_type           otp
+   port               22
+   username           marssilva
+
+   ```
+### Podemos fazer o teste com ssh local assim 
+
+   `ssh marssilva@127.0.0.1` # coloque a senha do campo key, só utiliza uma vez :)
+
+### Dica do dolinho, o Vault tem um sub comando ssh para realizar o login, fica assim
+
+   - Com esse comando ele solicita a key e já realiza o login (precisa instalar o sshpass para acessar automático)
+   `vault ssh -mode=otp -mount-point ssh_local -role=otp_key_role marssilva@127.0.0.1`
+
 
 
 
